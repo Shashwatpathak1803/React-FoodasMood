@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import userModel from "../models/userModel.js";
 import foodModel from "../models/foodModel.js";
 import bcrypt from "bcrypt";
@@ -40,40 +39,40 @@ const foodSeeds = [
 ];
 
 export const connectDB = async () => {
-  let mongoUrl = process.env.MONGO_URL;
+  const mongoUrl = process.env.MONGO_URL;
 
   if (!mongoUrl) {
-    console.log("No MONGO_URL found in environment variables. Starting mongodb-memory-server...");
-    const mongoServer = await MongoMemoryServer.create();
-    mongoUrl = mongoServer.getUri();
-    console.log(`mongodb-memory-server started at: ${mongoUrl}`);
+    throw new Error("MONGO_URL is not defined.");
   }
 
   await mongoose
     .connect(mongoUrl)
     .then(async () => {
       console.log("DB Connected");
-      
+
       // Auto-seed admin user
       const adminEmail = "admin@tomato.com";
       const adminExists = await userModel.findOne({ email: adminEmail });
+
       if (!adminExists) {
         console.log("Seeding default admin user...");
         const saltVal = process.env.SALT ? Number(process.env.SALT) : 10;
         const salt = await bcrypt.genSalt(saltVal);
         const hashedPassword = await bcrypt.hash("adminpassword123", salt);
+
         const newAdmin = new userModel({
           name: "Admin",
           email: adminEmail,
           password: hashedPassword,
-          role: "admin"
+          role: "admin",
         });
+
         await newAdmin.save();
-        console.log("Admin user seeded successfully. (Email: admin@tomato.com, Password: adminpassword123)");
+        console.log("Admin user seeded successfully.");
       }
 
-      // Auto-seed food items
       const foodCount = await foodModel.countDocuments({});
+
       if (foodCount === 0) {
         console.log("Seeding default food items...");
         await foodModel.insertMany(foodSeeds);
