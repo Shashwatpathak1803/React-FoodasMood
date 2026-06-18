@@ -9,7 +9,7 @@ const StoreContextProvider = (props) => {
   const DISPLAY_RATE = CURRENCY_RATE * 0.1; // 10% of conversion for UI display (10% of original conversion)
   const [cartItems, setCartItems] = useState({});
   const [food_list, setFoodList] = useState([]);
-  const url = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+  const url = import.meta.env.VITE_BACKEND_URL || "https://react-foodasmood-api.onrender.com";
   const [token, setToken] = useState("");
 
   const addToCart = async (itemId) => {
